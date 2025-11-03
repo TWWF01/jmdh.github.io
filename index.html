@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>接码导航</title>
+  <style>
+    :root {
+      --page-bg: #f6f7fb; /* 页面浅灰 */
+      --card-bg: #ffffff; /* 容器白底 */
+      --text-1: #1f2937; /* 标题文字 */
+      --text-2: #6b7280; /* 次文本 */
+      --shadow-1: 0 8px 20px rgba(0,0,0,0.06);
+      --shadow-2: 0 12px 28px rgba(0,0,0,0.10);
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--page-bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text-1);
+    }
+    .container {
+      width: 100%;
+      max-width: min(920px, 100%); /* 宽屏更宽，小屏占满 */
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: clamp(10px, 3vw, 20px) clamp(10px, 3vw, 20px) clamp(16px, 4vw, 28px);
+      border-radius: 0;
+      box-shadow: none;
+      min-height: 100vh;
+    }
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: var(--text-1);
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
+    .underline { width: 80%; height: 2px; background: rgba(0,0,0,0.12); margin: 10px auto 18px; border-radius: 2px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 2px; align-items: stretch; }
+    .tile { width: 100%; height: clamp(112px, 18vw, 160px); border-radius: clamp(16px, 3vw, 28px); display: flex; align-items: center; text-decoration: none; color: var(--text-1); background: #fff; box-shadow: var(--shadow-1); transition: transform .08s ease, box-shadow .18s ease; overflow: hidden; }
+    .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+    .tile:active { transform: translateY(0); }
+    .card-content { padding: clamp(12px, 2.8vw, 20px) clamp(14px, 3vw, 22px); width: 100%; display: grid; grid-template-columns: clamp(72px, 14vw, 120px) 1fr; grid-column-gap: clamp(10px, 2.4vw, 18px); align-items: center; }
+    .thumb { width: clamp(72px, 14vw, 120px); height: clamp(72px, 14vw, 120px); border-radius: clamp(8px, 2vw, 14px); background: #eef2f7; display: grid; place-items: center; color: #9aa3af; border: 1px solid rgba(0,0,0,0.06); overflow: hidden; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb-placeholder { font-size: 14px; }
+    .text-wrap { min-width: 0; }
+    .card-title { font-size: clamp(16px, 2.6vw, 20px); font-weight: 800; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { margin-top: clamp(4px, 1vw, 8px); font-size: clamp(12px, 2vw, 14px); color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 卡片色块（与示例一致的糖果色系） */
+    .c-gray { background: #e5e7eb; }
+    .c-gray .card-icon { background: #9ca3af; }
+    .c-maroon { background: #e3d7fb; }
+    .c-maroon .card-icon { background: #8b5cf6; }
+    .c-orange { background: #fde4cf; }
+    .c-orange .card-icon { background: #fb923c; }
+    .c-green { background: #d1f7df; }
+    .c-green .card-icon { background: #22c55e; }
+    .c-cyan { background: #d6f2fe; }
+    .c-cyan .card-icon { background: #06b6d4; }
+    .c-blue { background: #e0e7ff; }
+    .c-blue .card-icon { background: #3b82f6; }
+    .c-purple { background: #f1dbf5; }
+    .c-purple .card-icon { background: #a855f7; }
+    .c-purple-dark { background: #ffe0f0; }
+    .c-purple-dark .card-icon { background: #ec4899; }
+    .c-pink { background: #ffe4e6; }
+    .c-pink .card-icon { background: #f43f5e; }
+
+    /* 响应式：窄屏自动变为 2/1 列 */
+    @media (max-width: 560px) {
+      .container { max-width: 100%; }
+      .underline { width: 86%; }
+    }
+  </style>
+  
+  </head>
+<body>
+  <div id="app" class="container">
+    <h1>接码导航</h1>
+    <div class="underline"></div>
+
+    <div class="grid">
+      <nav-card v-for="(item, i) in tiles" :key="i" :item="item"></nav-card>
+    </div>
+  </div>
+  <script src="./vue.js"></script>
+
+  <script>
+    Vue.component('nav-card', {
+      props: { item: { type: Object, required: true } },
+      computed: {
+        isDisabled() { return !!this.item.disabled; }
+      },
+      methods: {
+        onClick(e) { if (this.isDisabled) e.preventDefault(); }
+      },
+      template: `
+        <a
+          class="tile"
+          :class="item.className"
+          :href="isDisabled ? '#' : item.href"
+          :target="item.target || '_self'"
+          :rel="item.rel || null"
+          @click="onClick"
+        >
+          <div class="card-content">
+            <div class="thumb">
+              <img v-if="item.img" :src="item.img" alt="" />
+              <div v-else class="thumb-placeholder">图片</div>
+            </div>
+            <div class="text-wrap">
+              <div class="card-title">{{ item.label }}</div>
+              <div v-if="item.desc" class="card-desc">{{ item.desc }}</div>
+            </div>
+          </div>
+        </a>
+      `
+    });
+
+    new Vue({
+      el: '#app',
+      data: {
+        tiles: [
+          { label: 'ToDesk 云电脑', desc: '短信接码 · 新标签打开', className: 'c-gray', href: './todesk.html', target: '_blank', rel: 'noopener' },
+          { label: '占位1', desc: '待配置', className: 'c-maroon', href: '#', disabled: true },
+          { label: '占位2', desc: '待配置', className: 'c-orange', href: '#', disabled: true },
+          { label: '占位3', desc: '待配置', className: 'c-green', href: '#', disabled: true },
+          { label: '占位4', desc: '待配置', className: 'c-cyan', href: '#', disabled: true },
+          { label: '占位5', desc: '待配置', className: 'c-blue', href: '#', disabled: true },
+          { label: '占位6', desc: '待配置', className: 'c-purple', href: '#', disabled: true },
+          { label: '占位7', desc: '待配置', className: 'c-purple-dark', href: '#', disabled: true },
+          { label: '占位8', desc: '待配置', className: 'c-pink', href: '#', disabled: true }
+        ]
+      }
+    });
+  </script>
+</body>
+</html>
+
+
